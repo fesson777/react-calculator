@@ -20,6 +20,7 @@ body {
   border: 1px solid white;
   outline: none;
   cursor: pointer;
+  user-select: none; 
 }
 .calculator-grid > button:hover, 
 .calculator-grid > button:focus {

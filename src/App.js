@@ -1,7 +1,8 @@
 import { useReducer } from 'react';
-import DigitButton from './DigitButton'
-import OperationButton from './OperationButton'
+import DigitButton from './Buttons/DigitButton'
+import OperationButton from './Buttons/OperationButton'
 import './styles.css'
+import { evaluate, formatOperand } from './utils/utils';
 
 export const ACTIONS = {
   ADD_DIGIT: 'add-digit',
@@ -13,29 +14,29 @@ export const ACTIONS = {
 
 function reducer(state, {type, payload}) {
   switch (type) {
-    case ACTIONS.ADD_DIGIT:
-      if(state.overwrite) {
-        return {
-          ...state,
-          overwrite: false,          
-          currentOperand: payload.digit
-        }
-      }
-      if(payload.digit === '0' && state.currentOperand === '0') {
-        return state
-      } 
 
-      if (payload.digit === '.' && state.currentOperand == null) {
-        return state
-      }   
-      if (payload.digit === '.' && state.currentOperand.includes('.')) {
-        return state
-      }   
-      
-      return {
-        ...state,
-        currentOperand: `${state.currentOperand || ""}${payload.digit}`
-      } 
+      case ACTIONS.ADD_DIGIT:
+          if(state.overwrite) {
+            return {
+              ...state,
+              overwrite: false,          
+              currentOperand: payload.digit
+            }
+          }
+          if(payload.digit === '0' && state.currentOperand === '0') {
+            return state
+          } 
+          if (payload.digit === '.' && state.currentOperand == null) {
+            return state
+          }   
+          if (payload.digit === '.' && state.currentOperand.includes('.')) {
+            return state
+          } 
+          return {
+            ...state,
+            currentOperand: `${state.currentOperand || ""}${payload.digit}`
+          } 
+
     case ACTIONS.DELETE_DIGIT: 
         if(state.overwrite) {
           return {
@@ -54,12 +55,11 @@ function reducer(state, {type, payload}) {
           ...state,
           currentOperand: state.currentOperand.slice(0, -1)
         }
-    case ACTIONS.CHOOSE_OPERATION: {
-     
+
+    case ACTIONS.CHOOSE_OPERATION: {     
         if(state.currentOperand == null && state.previousOperand == null ) {
             return state
         }
-
         if(state.currentOperand == null) {
           return {
             ...state,
@@ -100,42 +100,6 @@ function reducer(state, {type, payload}) {
     default:
        return state
   }
-}
-
-let formatter = new Intl.NumberFormat("ru", {
-  maximumFractionDigits: 2
-})
-
-function formatOperand (operand) {
-  if(operand == null) return
-  const [integer, decimal] = operand.split('.')
-  if(decimal == null) return formatter.format(integer)
-  return `${formatter.format(integer)}.${decimal}`
-}
-
-function evaluate({currentOperand, previousOperand, operation}) {
-  const current = parseFloat(currentOperand)
-  const prev = parseFloat(previousOperand)
-  if(isNaN(current) || isNaN(prev)) return ""
-
-  let computation = ''
-  switch (operation) {
-    case '+' :
-      computation = prev + current
-      break
-    case '-' :
-      computation = prev - current
-      break
-    case '*' :
-      computation = prev * current
-      break
-    case '/' :
-      computation= prev / current
-      break
-    default:
-     return ''
-  }
-  return computation.toString()
 }
 
 function App() {
